@@ -1,8 +1,12 @@
 # TFS to Git migration
 
 ## What it does
-- cleanup of huge files (e.g. Github denies > 100Mb and does not recommend >50Mb)
-- cleanup of unnecessary files from the history, like per-user settings files, binaries, caches, etc
+- loads TFS repository to local dir
+- cleans it history from:
+  - huge files (e.g. Github denies > 100Mb and does not recommend >50Mb)
+  - unnecessary files, like per-user settings files, binaries, caches, etc
+- adds example .gitignore
+- pushes to remote Git repository (e.g. Github or VSTS)
 
 ## Prerequisites
 - TFS Team Explorer installed
