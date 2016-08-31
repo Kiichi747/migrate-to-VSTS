@@ -1,0 +1,1 @@
+See documentation inside migrate.bat script
