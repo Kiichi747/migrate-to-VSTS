@@ -1,34 +1,4 @@
 
-@rem
-@rem TFS to Git migration
-@rem
-
-@rem WHAT IT DOES:
-@rem - cleanup of huge files (e.g. Github denies > 100Mb and does not recommend >50Mb)
-@rem - cleanup of unnecessary files from the history, like per-user settings files, binaries, caches, etc
-
-@rem PRERERQUISITES:
-@rem - TFS Team Explorer installed
-@rem - git installed and in %PATH%
-@rem - Git TFS installed and in %PATH%
-@rem - java installed and in %PATH% (used by BFG)
-@rem - BFG 1.12.7: https://rtyley.github.io/bfg-repo-cleaner/
-
-@rem USAGE:
-@rem   1) Modify parameters below
-@rem   2) Run this script as: > get_from_tfs_Dotcom.bat > log.txt 2>&1
-
-
-@rem Modify these parameters
-set TFS_COLLECTION=https://<account>.visualstudio.com/<collection>
-set TFS_USERNAME=<domain>\<user>
-set TFS_PASSWORD=<password>
-set TFS_PATH=$/.../...
-set LOCAL_DIR=D:\...\...
-
-set GIT_AUTHOR="USERNAME <EMAILADDRESS>"
-set GIT_REPO=https://github.com/<user>/<repo>.git
-
 
 @rem Internal vars
 set CD=%~dp0
