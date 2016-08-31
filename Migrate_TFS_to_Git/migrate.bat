@@ -1,10 +1,11 @@
 
+call config.bat
+
 
 @rem Internal vars
 set CD=%~dp0
 set BFG_JAR=%CD%\bfg-1.12.7.jar
 set GIT_IGNORE_EXAMPLE_FILE=%CD%\example.gitignore
-
 
 
 @echo --- Time: %time%
