@@ -9,11 +9,12 @@ rem   > git update-index --no-assume-unchanged <file>
 set TFS_COLLECTION=https://@@@account@@@.visualstudio.com/@@@collection@@@
 set TFS_PATH=$/.../...
 
-@rem TODO: consider getting first and last changeset ids from TFS by "tf ..." (might require to install Team Explorer Everywhere) to fetch changesets in smaller chunks
-set TFS_CHANGESET_FIRST=0
-@rem first - to fetch from the very beginning - set to 0 which will complain about invalid number but won't fetch anything at clone stage
-set TFS_CHANGESET_LAST=12
-@rem last - can be simply set to -1 to fetch all history
+@rem TODO: consider getting first and last changeset ids from TFS by "tf ..." to fetch changesets in smaller chunks
+@rem   this will require to install Team Explorer Everywhere: https://www.microsoft.com/en-us/download/details.aspx?id=47727
+set TFS_CHANGESET_FIRST=1
+@rem first - to fetch from the very beginning - set to 1 which will one initial empty commit if first changeset is not 1
+set TFS_CHANGESET_LAST=50
+@rem last - to fetch till the very end - set to -1
 
 set LOCAL_DIR=D:\...\...
 
