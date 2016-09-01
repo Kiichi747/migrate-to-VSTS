@@ -14,11 +14,15 @@ git tfs quick-clone --changeset=%TFS_CHANGESET_FIRST% --branches=none --resumabl
 @rem not using "init" command as it doesn't allow to specify start changeset
 @rem TODO: consider: --authors=...
 @rem TODO: consider: --export --export-work-item-mapping=...
+@echo Exited with return code: %ERRORLEVEL%
 
 @echo --- Time: %time%
 pushd %LOCAL_DIR%
 git tfs fetch --up-to %TFS_CHANGESET_LAST%
 @rem TODO: consider: --batch-size=VALUE (if changesets are huge as default is 100)
+@echo Exited with return code: %ERRORLEVEL%
+
+git rebase tfs/default master
 
 @echo --- Time: %time%
 java -jar %BFG_JAR% --no-blob-protection --delete-files "{.git,*.dbmdl,*.1,*.2,*.bak,Thumbs.db,*.suo,*.vssscc,*.vspscc,*.vsscc,*.wixpdb,*.wixobj,*.mvfs_*,*.obj,*.pdb,*.user,*.msi}" .
@@ -29,7 +33,8 @@ java -jar %BFG_JAR% --no-blob-protection --delete-folders "{.git,Bin,bin,obj,Deb
 @echo --- Time: %time%
 java -jar %BFG_JAR% --no-blob-protection --strip-blobs-bigger-than 50M .
 
-@rem TODO: consider removing git-tfs-id sections from the bottom of the commit messages: git filter-branch -f --msg-filter 'sed "s/^git-tfs-id:.*$//g"' '--' --all
+@rem TODO: consider removing git-tfs-id sections from the bottom of the commit messages:
+@rem git filter-branch -f --msg-filter 'sed "s/^git-tfs-id:.*$//g"' '--' --all
 
 @rem TODO: Remove the TFS source control bindings from .sln: removing the GlobalSection(TeamFoundationVersionControl) ... EndGlobalSection
 
@@ -44,7 +49,7 @@ REM TODO: consider converting .tfignore to .gitignore instead of below
 set TARGET_GITIGNORE_FILE=%LOCAL_DIR%\.gitignore
 copy "%GIT_IGNORE_EXAMPLE_FILE%" "%TARGET_GITIGNORE_FILE%"
 git reset HEAD
-git add -v %TARGET_GITIGNORE_FILE%
+git add -v "%TARGET_GITIGNORE_FILE%"
 git commit --author=%GIT_AUTHOR% -m "Adding .gitignore file"
 
 REM TODO: create repo first
