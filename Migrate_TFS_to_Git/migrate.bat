@@ -17,7 +17,7 @@ git tfs quick-clone --changeset=%TFS_CHANGESET_FIRST% --branches=none --resumabl
 
 @echo --- Time: %time%
 pushd %LOCAL_DIR%
-git tfs fetch -t %TFS_CHANGESET_LAST%
+git tfs fetch --up-to %TFS_CHANGESET_LAST%
 @rem TODO: consider: --batch-size=VALUE (if changesets are huge as default is 100)
 
 @echo --- Time: %time%
@@ -42,7 +42,7 @@ git gc --prune=now --aggressive
 REM TODO: consider converting .tfignore to .gitignore instead of below
 @echo --- Time: %time%
 set TARGET_GITIGNORE_FILE=%LOCAL_DIR%\.gitignore
-copy %GIT_IGNORE_EXAMPLE_FILE% %TARGET_GITIGNORE_FILE%
+copy "%GIT_IGNORE_EXAMPLE_FILE%" "%TARGET_GITIGNORE_FILE%"
 git reset HEAD
 git add -v %TARGET_GITIGNORE_FILE%
 git commit --author=%GIT_AUTHOR% -m "Adding .gitignore file"
