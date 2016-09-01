@@ -9,12 +9,15 @@ set GIT_IGNORE_EXAMPLE_FILE=%CD%\example.gitignore
 
 
 @echo --- Time: %time%
-git tfs clone --branches=none --resumable %TFS_COLLECTION% "%TFS_PATH%" %LOCAL_DIR%
-@rem TODO: consider using: --bare, --branches=all|auto|none
+git tfs quick-clone --changeset=%TFS_CHANGESET_FIRST% --branches=none --resumable "%TFS_COLLECTION%" "%TFS_PATH%" "%LOCAL_DIR%"
+@rem using quick-clone as "clone" command for some reason doesn't care about --up-to option
+@rem TODO: consider: --authors=...
+@rem TODO: consider: --export --export-work-item-mapping=...
 
 @echo --- Time: %time%
 cd %LOCAL_DIR%
-git tfs pull --rebase
+git tfs fetch -t %TFS_CHANGESET_LAST%
+@rem TODO: consider: --batch-size=VALUE (if changesets are huge, default is 100)
 
 @echo --- Time: %time%
 java -jar %BFG_JAR% --no-blob-protection --delete-files "{.git,*.dbmdl,*.1,*.2,*.bak,Thumbs.db,*.suo,*.vssscc,*.vspscc,*.vsscc,*.wixpdb,*.wixobj,*.mvfs_*,*.obj,*.pdb,*.user,*.msi}" .
@@ -24,6 +27,8 @@ java -jar %BFG_JAR% --no-blob-protection --delete-folders "{.git,Bin,bin,obj,Deb
 
 @echo --- Time: %time%
 java -jar %BFG_JAR% --no-blob-protection --strip-blobs-bigger-than 50M .
+
+@rem TODO: consider removing git-tfs-id sections from the bottom of the commit messages: git filter-branch -f --msg-filter 'sed "s/^git-tfs-id:.*$//g"' '--' --all
 
 @rem TODO: Remove the TFS source control bindings from .sln: removing the GlobalSection(TeamFoundationVersionControl) ... EndGlobalSection
 
