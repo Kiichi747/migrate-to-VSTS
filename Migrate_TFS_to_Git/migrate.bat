@@ -10,14 +10,15 @@ set GIT_IGNORE_EXAMPLE_FILE=%CD%\example.gitignore
 
 @echo --- Time: %time%
 git tfs quick-clone --changeset=%TFS_CHANGESET_FIRST% --branches=none --resumable "%TFS_COLLECTION%" "%TFS_PATH%" "%LOCAL_DIR%"
-@rem using quick-clone as "clone" command for some reason doesn't care about --up-to option
+@rem not using "clone" command as for some reason it doesn't care about --up-to option
+@rem not using "init" command as it doesn't allow to specify start changeset
 @rem TODO: consider: --authors=...
 @rem TODO: consider: --export --export-work-item-mapping=...
 
 @echo --- Time: %time%
-cd %LOCAL_DIR%
+pushd %LOCAL_DIR%
 git tfs fetch -t %TFS_CHANGESET_LAST%
-@rem TODO: consider: --batch-size=VALUE (if changesets are huge, default is 100)
+@rem TODO: consider: --batch-size=VALUE (if changesets are huge as default is 100)
 
 @echo --- Time: %time%
 java -jar %BFG_JAR% --no-blob-protection --delete-files "{.git,*.dbmdl,*.1,*.2,*.bak,Thumbs.db,*.suo,*.vssscc,*.vspscc,*.vsscc,*.wixpdb,*.wixobj,*.mvfs_*,*.obj,*.pdb,*.user,*.msi}" .
@@ -56,3 +57,5 @@ git push -u origin --all
 @echo --- Time: %time%
 
 REM TODO: lock TFS, so no more changes can be checked in there
+
+popd
