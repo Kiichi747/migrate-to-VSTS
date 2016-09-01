@@ -10,8 +10,10 @@
 
 ## Prerequisites
 - TFS Team Explorer installed
+(see install_prereqs.bat)
+- TFS branches are real branches (convert folders to branches)
 - git installed and in %PATH%
-- Git TFS installed and in %PATH%
+- Git TFS installed and in %PATH%: see: https://github.com/git-tfs/git-tfs
 - java installed and in %PATH% (used by BFG)
 - BFG 1.12.7: https://rtyley.github.io/bfg-repo-cleaner/
 
