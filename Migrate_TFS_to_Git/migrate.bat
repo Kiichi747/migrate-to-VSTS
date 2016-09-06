@@ -59,13 +59,14 @@ if exist %GIT_IGNORE_FILE% (
 		echo Found %TFS_IGNORE_FILE% file, will rename it to %GIT_IGNORE_FILE%
 		rename "%TFS_IGNORE_FILE%" "%GIT_IGNORE_FILE%"
 		git add -v "%TFS_IGNORE_FILE%" "%GIT_IGNORE_FILE%"
+		git commit --author=%GIT_AUTHOR% -m "Renamed %TFS_IGNORE_FILE% to %GIT_IGNORE_FILE%"
 	) else (
 		echo File %TFS_IGNORE_FILE% doesn't exist
 		echo File %GIT_IGNORE_FILE% will be a copy of standard ...
 		copy "%GIT_IGNORE_EXAMPLE_FILE%" "%GIT_IGNORE_FILE%"
 		git add -v "%GIT_IGNORE_FILE%"
+		git commit --author=%GIT_AUTHOR% -m "Adding %GIT_IGNORE_FILE% file based on standard"
 	)
-	git commit --author=%GIT_AUTHOR% -m "Adding .gitignore file"
 )
 
 
