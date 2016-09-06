@@ -23,6 +23,10 @@ git tfs fetch --up-to %TFS_CHANGESET_LAST%
 @echo Exited with return code: %ERRORLEVEL%
 @rem TODO: consider: --batch-size=VALUE (if changesets are huge as default is 100)
 
+@rem git tfs seems to ignore files that cannot be retrieved (e.g. due to intermittent connection), creates commit without the file and continues
+@rem so commit is created with missing file, which affects the further history
+@rem to deal with this, immeadetely stop the migration process, and revert git repo to the earlier state use command: > git update-ref refs/remotes/tfs/default <commit_id>
+@rem then rerun fetch which should re-retrieve dropped changesets
 
 git rebase tfs/default master
 
