@@ -16,11 +16,13 @@ git tfs quick-clone --changeset=%TFS_CHANGESET_FIRST% --branches=none --resumabl
 @rem TODO: consider: --export --export-work-item-mapping=...
 @echo Exited with return code: %ERRORLEVEL%
 
-@echo --- Time: %time%
 pushd %LOCAL_DIR%
+
+@echo --- Time: %time%
 git tfs fetch --up-to %TFS_CHANGESET_LAST%
-@rem TODO: consider: --batch-size=VALUE (if changesets are huge as default is 100)
 @echo Exited with return code: %ERRORLEVEL%
+@rem TODO: consider: --batch-size=VALUE (if changesets are huge as default is 100)
+
 
 git rebase tfs/default master
 
@@ -38,19 +40,34 @@ java -jar %BFG_JAR% --no-blob-protection --strip-blobs-bigger-than 50M .
 
 @rem TODO: Remove the TFS source control bindings from .sln: removing the GlobalSection(TeamFoundationVersionControl) ... EndGlobalSection
 
-@rem TODO: Add a .gitattributes file
-
 @echo --- Time: %time%
 git reflog expire --expire=now --all
 git gc --prune=now --aggressive
 
-REM TODO: consider converting .tfignore to .gitignore instead of below
+
+@rem TODO: Add a .gitattributes file
 @echo --- Time: %time%
-set TARGET_GITIGNORE_FILE=%LOCAL_DIR%\.gitignore
-copy "%GIT_IGNORE_EXAMPLE_FILE%" "%TARGET_GITIGNORE_FILE%"
-git reset HEAD
-git add -v "%TARGET_GITIGNORE_FILE%"
-git commit --author=%GIT_AUTHOR% -m "Adding .gitignore file"
+set TFS_IGNORE_FILE=.tfignore
+set GIT_IGNORE_FILE=.gitignore
+
+if exist %GIT_IGNORE_FILE% (
+	echo File %GIT_IGNORE_FILE% already exists
+) else (
+	echo File %GIT_IGNORE_FILE% doesn't exist
+	git reset HEAD
+	if exist %TFS_IGNORE_FILE% (
+		echo Found %TFS_IGNORE_FILE% file, will rename it to %GIT_IGNORE_FILE%
+		rename "%TFS_IGNORE_FILE%" "%GIT_IGNORE_FILE%"
+		git add -v "%TFS_IGNORE_FILE%" "%GIT_IGNORE_FILE%"
+	) else (
+		echo File %TFS_IGNORE_FILE% doesn't exist
+		echo File %GIT_IGNORE_FILE% will be a copy of standard ...
+		copy "%GIT_IGNORE_EXAMPLE_FILE%" "%GIT_IGNORE_FILE%"
+		git add -v "%GIT_IGNORE_FILE%"
+	)
+	git commit --author=%GIT_AUTHOR% -m "Adding .gitignore file"
+)
+
 
 REM TODO: create repo first
 
