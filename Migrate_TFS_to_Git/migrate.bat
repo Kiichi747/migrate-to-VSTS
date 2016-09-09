@@ -44,6 +44,9 @@ java -jar %BFG_JAR% --no-blob-protection --strip-blobs-bigger-than 50M .
 
 @rem TODO: Remove the TFS source control bindings from .sln: removing the GlobalSection(TeamFoundationVersionControl) ... EndGlobalSection
 
+@rem As some files were cleaned from the HEAD commit, workspace will still contain them and they will be recognized as new changes, reset will remove them
+git reset HEAD --hard
+
 @echo --- Time: %time%
 git reflog expire --expire=now --all
 git gc --prune=now --aggressive
@@ -58,7 +61,6 @@ if exist %GIT_IGNORE_FILE% (
 	echo File %GIT_IGNORE_FILE% already exists
 ) else (
 	echo File %GIT_IGNORE_FILE% doesn't exist
-	git reset HEAD
 	if exist %TFS_IGNORE_FILE% (
 		echo Found %TFS_IGNORE_FILE% file, will rename it to %GIT_IGNORE_FILE%
 		rename "%TFS_IGNORE_FILE%" "%GIT_IGNORE_FILE%"
@@ -75,6 +77,14 @@ if exist %GIT_IGNORE_FILE% (
 
 
 REM TODO: create repo first
+
+@rem Without this further push might fail.
+@rem It repacks git repo into a single pack, cleaning objects left after "git prune".
+@rem Might not be compatible with incremental push, or inefficient, as every push will send the whole pack every time.
+@rem Consider splitting pack: --max-pack-size=20m
+@rem Need further investigation and testing.
+REM git repack -adf
+@rem run this to check for issues: git fsck --full --dangling
 
 @echo --- Time: %time%
 git remote add origin %GIT_REPO%
