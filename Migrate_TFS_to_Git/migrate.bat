@@ -79,7 +79,17 @@ REM TODO: create repo first
 @echo --- Time: %time%
 git remote add origin %GIT_REPO%
 git config --global push.default simple
-git push -u origin --all
+git push -u origin --all -v --progress
+
+REM @rem TODO: push in chunks
+REM git rev-list --all --count
+REM git rev-list master --first-parent --count
+REM git push origin master~2500:refs/heads/master
+REM git push origin master~2000:refs/heads/master
+REM git push origin master~1500:refs/heads/master
+REM git push origin master~1000:refs/heads/master
+REM git push origin master~500:refs/heads/master
+REM git push -u origin master
 
 @echo --- Time: %time%
 
