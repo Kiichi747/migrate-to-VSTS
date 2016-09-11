@@ -177,17 +177,16 @@ if (! $Local_Git_Dir) {
 	$Local_Git_Dir = GetTempDir
 }
 
-# InitGitRepoLinkedToTFS
+InitGitRepoLinkedToTFS
 
 pushd $Local_Git_Dir
 
-# FetchAllChangesetsAndConvertToCommits
+FetchAllChangesetsAndConvertToCommits
 
-# CleanupGitRepo
+CleanupGitRepo
 
 # TODO: Add a .gitattributes file
 Provide_Gitignore_Files
-
 
 # TODO: create repo first
 
@@ -200,15 +199,15 @@ Provide_Gitignore_Files
 # # run this to check for issues: git fsck --full --dangling
 
 
-# PushGitRepoToRemote
+PushGitRepoToRemote
 
 # TODO: lock TFS, so no more changes can be checked in there
 
 popd
 
 
-# if ($Remove_Local_Git_Dir) {
-	# Remove-Item $Local_Git_Dir -Recurse
-# }
+if ($Remove_Local_Git_Dir) {
+	Remove-Item $Local_Git_Dir -Recurse
+}
 
-# Write-Host-Formatted "All done!"
+Write-Host-Formatted "All done!"
