@@ -1,8 +1,8 @@
 Param(
-    [Parameter(Mandatory=$False)]
+    [Parameter(Mandatory=$True)]
     [string] $TFS_Collection_URL,
 	
-    [Parameter(Mandatory=$False)]
+    [Parameter(Mandatory=$True)]
     [string] $TFS_Path,
 	
 	# TODO: consider getting first and last changeset ids from TFS by "tf ..." to fetch changesets in smaller chunks
@@ -27,7 +27,7 @@ Param(
     [string] $Git_Author,
 	
 	# Where to push final Git repo, for example URL of new empty Git repo in VSTS
-    [Parameter(Mandatory=$False)]
+    [Parameter(Mandatory=$True)]
     [string] $Git_Repo
 )
 
