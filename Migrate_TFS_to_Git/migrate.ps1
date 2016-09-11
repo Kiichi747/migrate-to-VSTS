@@ -19,6 +19,9 @@ Param(
     [Parameter(Mandatory=$False)]
     [string] $Local_Git_Dir,
 	
+    [Parameter(Mandatory=$False)]
+    [bool] $Remove_Local_Git_Dir = $True,
+	
     # This is only for additional commits done after migration, for example preparing .gitignore files
 	[Parameter(Mandatory=$False)]
     [string] $Git_Author,
@@ -151,9 +154,30 @@ function PushGitRepoToRemote() {
 	# git push -u origin master
 }
 
+function GetTempDir() {
+	Write-Host "Creating temp dir ..." -ForegroundColor green
+
+	$ScriptName = Split-Path -Leaf $MyInvocation.ScriptName
+	$TempDir = Join-Path $Env:Temp ($ScriptName + "-" + $pid + "-" + (Get-Random))
+	if (Test-Path $TempDir) {
+		throw "ERROR: cannot get unique temp dir: $TempDir"
+	}
+
+	New-Item $TempDir -Type directory | Out-Host
+
+	Write-Host "Temp dir created: " $TempDir
+	
+	return $TempDir
+}
+
+
 #
 # Main
 #
+
+if (! $Local_Git_Dir) {
+	$Local_Git_Dir = GetTempDir
+}
 
 InitGitRepoLinkedToTFS
 
@@ -185,3 +209,8 @@ WhatTimeIsItNow
 # TODO: lock TFS, so no more changes can be checked in there
 
 popd
+
+
+if ($Remove_Local_Git_Dir) {
+	Remove-Item $Local_Git_Dir -Recurse
+}
