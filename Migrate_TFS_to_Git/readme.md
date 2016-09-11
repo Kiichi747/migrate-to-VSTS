@@ -18,5 +18,6 @@
 - [optional] Git Credentials Manager
 
 ## Usage
-1. Modify parameters in file: ```config.bat```
-2. Run script as: ```migrate.bat > log.txt 2>&1```
+1. Use one of the existing migrate_<project>.ps1 files as an example
+2. Copy it to a new file and modify all parameters inside
+3. Run it in PowerShell session, optionally redirecting output to log file
