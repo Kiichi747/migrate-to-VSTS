@@ -109,23 +109,28 @@ function Provide_Gitignore_Files() {
 	$TFS_Ignore_File = '.tfignore'
 	$Git_Ignore_File = '.gitignore'
 
-	# TODO: search for .tfignore recursively: Get-ChildItem . -Recurse -Include $TFS_Ignore_File | %{ ... }
+	$changes = $False
+
+	Get-ChildItem . -Recurse -Include $TFS_Ignore_File | %{
+		$source = $_.FullName
+		$target = Join-Path (Split-Path $source) $Git_Ignore_File
+		if (Test-Path $target) { throw "ERROR: both files exist, not sure what to do: $source and $target" }
+		Rename-Item $source $target
+		git add -v $source $target
+		$changes = $True
+	}
+
 	if (Test-Path $Git_Ignore_File) {
-		Write-Host "File $Git_Ignore_File already exists"
+		Write-Host "Top level file $Git_Ignore_File already exists"
 	} else {
-		Write-Host "File $Git_Ignore_File doesn't exist"
-		if (Test-Path $TFS_Ignore_File) {
-			Write-Host "Found $TFS_Ignore_File file, will rename it to $Git_Ignore_File"
-			Rename-Item "$TFS_Ignore_File" "$Git_Ignore_File"
-			git add -v "$TFS_Ignore_File" "$Git_Ignore_File"
-			git commit --author=$Git_Author -m "Renamed $TFS_Ignore_File to $Git_Ignore_File"
-		} else {
-			Write-Host "File $TFS_Ignore_File doesn't exist"
-			Write-Host "File $Git_Ignore_File will be a copy of standard ..."
-			Copy-Item "$Git_ignore_example_file" "$Git_Ignore_File"
-			git add -v "$Git_Ignore_File"
-			git commit --author=$Git_Author -m "Adding $Git_Ignore_File file based on standard"
-		}
+		Write-Host "Top level file $Git_Ignore_File doesn't exist, will create it based on generic file"
+		Copy-Item "$Git_ignore_example_file" "$Git_Ignore_File"
+		git add -v "$Git_Ignore_File"
+		$changes = $True
+	}
+	
+	if ($changes) {
+		git commit --author=$Git_Author -m "Taking care of ignore files"
 	}
 }
 
@@ -172,13 +177,13 @@ if (! $Local_Git_Dir) {
 	$Local_Git_Dir = GetTempDir
 }
 
-InitGitRepoLinkedToTFS
+# InitGitRepoLinkedToTFS
 
 pushd $Local_Git_Dir
 
-FetchAllChangesetsAndConvertToCommits
+# FetchAllChangesetsAndConvertToCommits
 
-CleanupGitRepo
+# CleanupGitRepo
 
 # TODO: Add a .gitattributes file
 Provide_Gitignore_Files
@@ -195,15 +200,15 @@ Provide_Gitignore_Files
 # # run this to check for issues: git fsck --full --dangling
 
 
-PushGitRepoToRemote
+# PushGitRepoToRemote
 
 # TODO: lock TFS, so no more changes can be checked in there
 
 popd
 
 
-if ($Remove_Local_Git_Dir) {
-	Remove-Item $Local_Git_Dir -Recurse
-}
+# if ($Remove_Local_Git_Dir) {
+	# Remove-Item $Local_Git_Dir -Recurse
+# }
 
-Write-Host-Formatted "All done!"
+# Write-Host-Formatted "All done!"
