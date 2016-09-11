@@ -43,13 +43,15 @@ $Git_ignore_example_file = Join-Path $scriptdir 'example.gitignore'
 # Functions
 #
 function WhatTimeIsItNow() {
-	Get-Date -Format g | Out-Host
+	Get-Date -Format g
+}
+
+function Write-Host-Formatted([string] $str) {
+	Write-Host (WhatTimeIsItNow) ":" $str -ForegroundColor green
 }
 
 function InitGitRepoLinkedToTFS() {
-	WhatTimeIsItNow
-
-	Write-Host "Initializing Git repo ..." -ForegroundColor green
+	Write-Host-Formatted "Initializing Git repo ..."
 	
 	git tfs quick-clone --changeset=$TFS_Changeset_First --branches=none --resumable "$TFS_Collection_URL" "$TFS_Path" "$Local_Git_Dir"
 	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
@@ -60,9 +62,7 @@ function InitGitRepoLinkedToTFS() {
 }
 
 function FetchAllChangesetsAndConvertToCommits() {
-	WhatTimeIsItNow
-
-	Write-Host "Fetching TFS changesets and converting them to Git commits ..." -ForegroundColor green
+	Write-Host-Formatted "Fetching TFS changesets and converting them to Git commits ..."
 
 	git tfs fetch --up-to $TFS_Changeset_Last
 	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
@@ -77,19 +77,16 @@ function FetchAllChangesetsAndConvertToCommits() {
 }
 
 function CleanupGitRepo() {
-	WhatTimeIsItNow
-
-	Write-Host "Cleaning Git repo ..." -ForegroundColor green
-
+	Write-Host-Formatted "Cleaning Git repo: stage 1 ..."
 	java -jar $bfg_jar --no-blob-protection --delete-files "{.git,*.dbmdl,*.1,*.2,*.bak,Thumbs.db,*.suo,*.vssscc,*.vspscc,*.vsscc,*.wixpdb,*.wixobj,*.mvfs_*,*.obj,*.user,*.msi}" .
 
-	WhatTimeIsItNow
+	Write-Host-Formatted "Cleaning Git repo: stage 2 ..."
 	java -jar $bfg_jar --no-blob-protection --delete-folders "{.git,Bin,bin,obj,Debug,debug,backup,Backup,TestResults}" .
 
-	WhatTimeIsItNow
+	Write-Host-Formatted "Cleaning Git repo: stage 3 ..."
 	java -jar $bfg_jar --no-blob-protection --strip-blobs-bigger-than 50M .
 
-	WhatTimeIsItNow
+	Write-Host-Formatted "Cleaning Git repo: stage 4 ..."
 	# As some files were cleaned from the HEAD commit, workspace will still contain them and they will be recognized as new changes, reset will remove them
 	git reset HEAD --hard
 
@@ -99,17 +96,15 @@ function CleanupGitRepo() {
 
 	# TODO: Remove the TFS source control bindings from .sln: removing the GlobalSection(TeamFoundationVersionControl) ... EndGlobalSection
 
-	WhatTimeIsItNow
+	Write-Host-Formatted "Cleaning Git repo: stage 5 ..."
 	git reflog expire --expire=now --all
 
-	WhatTimeIsItNow
+	Write-Host-Formatted "Cleaning Git repo: stage 6 ..."
 	git gc --prune=now --aggressive
 }
 
 function Provide_Gitignore_Files() {
-	WhatTimeIsItNow
-
-	Write-Host "Preparing .gitignore file ..." -ForegroundColor green
+	Write-Host-Formatted "Preparing .gitignore file ..."
 
 	$TFS_Ignore_File = '.tfignore'
 	$Git_Ignore_File = '.gitignore'
@@ -135,9 +130,7 @@ function Provide_Gitignore_Files() {
 }
 
 function PushGitRepoToRemote() {
-	WhatTimeIsItNow
-
-	Write-Host "Pushing Git repo to remote ..." -ForegroundColor green
+	Write-Host-Formatted "Pushing Git repo to remote ..."
 
 	git remote add origin $Git_Repo
 	git config --global push.default simple
@@ -155,7 +148,7 @@ function PushGitRepoToRemote() {
 }
 
 function GetTempDir() {
-	Write-Host "Creating temp dir ..." -ForegroundColor green
+	Write-Host-Formatted "Creating temp dir ..."
 
 	$ScriptName = Split-Path -Leaf $MyInvocation.ScriptName
 	$TempDir = Join-Path $Env:Temp ($ScriptName + "-" + $pid + "-" + (Get-Random))
@@ -193,18 +186,16 @@ Provide_Gitignore_Files
 
 # TODO: create repo first
 
-# Without this further push might fail.
-# It repacks git repo into a single pack, cleaning objects left after "git prune".
-# Might not be compatible with incremental push, or inefficient, as every push will send the whole pack every time.
-# Consider splitting pack: --max-pack-size=20m
-# Need further investigation and testing.
-git repack -adf
-# run this to check for issues: git fsck --full --dangling
+# git repack -adf
+# # Without this further push might fail.
+# # It repacks git repo into a single pack, cleaning objects left after "git prune".
+# # Might not be compatible with incremental push, or inefficient, as every push will send the whole pack every time.
+# # Consider splitting pack: --max-pack-size=20m
+# # Need further investigation and testing.
+# # run this to check for issues: git fsck --full --dangling
 
 
 PushGitRepoToRemote
-
-WhatTimeIsItNow
 
 # TODO: lock TFS, so no more changes can be checked in there
 
@@ -214,3 +205,5 @@ popd
 if ($Remove_Local_Git_Dir) {
 	Remove-Item $Local_Git_Dir -Recurse
 }
+
+Write-Host-Formatted "All done!"
