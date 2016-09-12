@@ -36,7 +36,6 @@ Param(
 #
 $ErrorActionPreference = "Stop"
 $scriptdir = Split-Path $MyInvocation.MyCommand.Path
-$bfg_jar = Join-Path $scriptdir 'bfg-1.12.7.jar'
 $Git_ignore_example_file = Join-Path $scriptdir 'example.gitignore'
 
 #
@@ -76,15 +75,28 @@ function FetchAllChangesetsAndConvertToCommits() {
 	git rebase tfs/default master
 }
 
+function FindBFG() {
+	# return Join-Path $scriptdir 'bfg-1.12.7.jar'
+
+	# TODO: rework hard-coded path to use any version of BFG; there's also BFG.exe but it fails to find java
+	return 'C:\ProgramData\Chocolatey\lib\bfg-repo-cleaner\tools\bfg-1.12.12.jar'
+}
+
 function CleanupGitRepo() {
 	Write-Host-Formatted "Cleaning Git repo: stage 1 ..."
+
+	$bfg_jar = FindBFG
+
 	java -jar $bfg_jar --no-blob-protection --delete-files "{.git,*.dbmdl,*.1,*.2,*.bak,Thumbs.db,*.suo,*.vssscc,*.vspscc,*.vsscc,*.wixpdb,*.wixobj,*.mvfs_*,*.obj,*.user,*.msi}" .
+	if (! $?) { throw "ERROR: BFG run failed with exit code: $LASTEXITCODE" }
 
 	Write-Host-Formatted "Cleaning Git repo: stage 2 ..."
 	java -jar $bfg_jar --no-blob-protection --delete-folders "{.git,Bin,bin,obj,Debug,debug,backup,Backup,TestResults}" .
+	if (! $?) { throw "ERROR: BFG run failed with exit code: $LASTEXITCODE" }
 
 	Write-Host-Formatted "Cleaning Git repo: stage 3 ..."
 	java -jar $bfg_jar --no-blob-protection --strip-blobs-bigger-than 50M .
+	if (! $?) { throw "ERROR: BFG run failed with exit code: $LASTEXITCODE" }
 
 	Write-Host-Formatted "Cleaning Git repo: stage 4 ..."
 	# As some files were cleaned from the HEAD commit, workspace will still contain them and they will be recognized as new changes, reset will remove them

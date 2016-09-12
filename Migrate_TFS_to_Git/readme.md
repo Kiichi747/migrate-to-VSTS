@@ -14,7 +14,7 @@
 - git installed and in %PATH%
 - Git TFS installed and in %PATH%: see: https://github.com/git-tfs/git-tfs
 - java installed and in %PATH% (used by BFG)
-- BFG 1.12.7: https://rtyley.github.io/bfg-repo-cleaner/
+- BFG (tested for 1.12.7): https://rtyley.github.io/bfg-repo-cleaner/
 - [optional] Git Credentials Manager
 
 ## Usage
