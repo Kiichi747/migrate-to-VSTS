@@ -20,7 +20,7 @@ Param(
     [string] $Local_Git_Dir,
 	
     [Parameter(Mandatory=$False)]
-    [bool] $Remove_Local_Git_Dir = $True,
+    [bool] $Remove_Local_Git_Dir = $False,
 	
     # This is only for additional commits done after migration, for example preparing .gitignore files
 	[Parameter(Mandatory=$False)]
@@ -219,6 +219,7 @@ popd
 
 
 if ($Remove_Local_Git_Dir) {
+# TODO: bug - can't delete folder for unknown reason, fails with error: You do not have sufficient access rights to perform this operation.
 	Remove-Item $Local_Git_Dir -Recurse
 }
 
