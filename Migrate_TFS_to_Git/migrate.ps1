@@ -37,7 +37,6 @@ Param(
 $ErrorActionPreference = "Stop"
 $scriptdir = Split-Path $MyInvocation.MyCommand.Path
 $Git_ignore_example_file = Join-Path $scriptdir 'example.gitignore'
-$migration_touch_dir = '..migration'
 
 #
 # Functions
@@ -46,7 +45,7 @@ function WhatTimeIsItNow() {
 	Get-Date -Format g
 }
 
-function MakeSureTouchDirExists([string] $repo_dir) {
+function MakeSureGitDirExists([string] $repo_dir) {
 	$migration_touch_dir_full = Join-Path $repo_dir $migration_touch_dir
 	if (! (Test-Path $migration_touch_dir_full)) {
 		New-Item $migration_touch_dir_full -Type directory | Out-Host
@@ -59,27 +58,20 @@ function Write-Host-Formatted([string] $str) {
 
 function InitGitRepoLinkedToTFS() {
 	Write-Host-Formatted "Initializing Git repo ..."
-	
-	$touch_file = Join-Path $migration_touch_dir '1_init.txt'
-	$touch_string = "$TFS_Collection_URL : $TFS_Path"
-	
-	if (Test-Path $touch_file) {
-		$existing_touch_string = Get-Content $touch_file
-		if ($existing_touch_string -eq $touch_string) {
-			Write-Host "Skipping clone, as dir $Local_Git_Dir seems to already contain the correct TFS clone of $touch_string"
-			return
-		} else {
-			throw "Dir $Local_Git_Dir exists, but does not contain the correct TFS clone"
-		}
+
+	git tfs info
+	if ($LASTEXITCODE -eq 0) {
+		# TODO: check that it was cloned from the correct TFS
+		Write-Host "Skipping clone, as dir seems to already contain Git repo"
+		return
 	}
+	
 	git tfs quick-clone --changeset=$TFS_Changeset_First --branches=none --resumable "$TFS_Collection_URL" "$TFS_Path" .
 	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 	# not using "clone" command as for some reason it doesn't care about --up-to option
 	# not using "init" command as it doesn't allow to specify start changeset
 	# TODO: consider: --authors=...
 	# TODO: consider: --export --export-work-item-mapping=...
-	
-	$touch_string | Out-File $touch_file
 }
 
 function FetchAllChangesetsAndConvertToCommits() {
@@ -211,7 +203,7 @@ if (! $Local_Git_Dir) {
 	$Local_Git_Dir = GetTempDir
 }
 
-MakeSureTouchDirExists $Local_Git_Dir
+MakeSureGitDirExists $Local_Git_Dir
 
 pushd $Local_Git_Dir
 
