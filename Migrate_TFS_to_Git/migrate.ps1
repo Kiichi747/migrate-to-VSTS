@@ -167,6 +167,18 @@ function Provide_Gitignore_Files() {
 	}
 }
 
+function RepackGitRepo() {
+	Write-Host-Formatted "Repacking Git repo ..."
+
+	git repack -adf
+	# Without this further push might fail.
+	# It repacks git repo into a single pack, cleaning objects left after "git prune".
+	# Might not be compatible with incremental push, or inefficient, as every push will send the whole pack every time.
+	# Consider splitting pack: --max-pack-size=20m
+	# Need further investigation and testing.
+	# run this to check for issues: git fsck --full --dangling
+}
+
 function PushGitRepoToRemote() {
 	Write-Host-Formatted "Pushing Git repo to remote ..."
 
@@ -230,14 +242,7 @@ Provide_Gitignore_Files
 
 # TODO: create repo first
 
-# git repack -adf
-# # Without this further push might fail.
-# # It repacks git repo into a single pack, cleaning objects left after "git prune".
-# # Might not be compatible with incremental push, or inefficient, as every push will send the whole pack every time.
-# # Consider splitting pack: --max-pack-size=20m
-# # Need further investigation and testing.
-# # run this to check for issues: git fsck --full --dangling
-
+# RepackGitRepo
 
 PushGitRepoToRemote
 
