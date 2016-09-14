@@ -87,6 +87,7 @@ function FetchAllChangesetsAndConvertToCommits() {
 	# then rerun fetch which should re-retrieve dropped changesets
 
 	git rebase tfs/default master
+	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 }
 
 function FindBFG() {
@@ -115,6 +116,7 @@ function CleanupGitRepo() {
 	Write-Host-Formatted "Cleaning Git repo: stage 4 ..."
 	# As some files were cleaned from the HEAD commit, workspace will still contain them and they will be recognized as new changes, reset will remove them
 	git reset HEAD --hard
+	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 
 	
 	# TODO: consider removing git-tfs-id sections from the bottom of the commit messages:
@@ -124,9 +126,11 @@ function CleanupGitRepo() {
 
 	Write-Host-Formatted "Cleaning Git repo: stage 5 ..."
 	git reflog expire --expire=now --all
+	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 
 	Write-Host-Formatted "Cleaning Git repo: stage 6 ..."
 	git gc --prune=now --aggressive
+	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 }
 
 function Provide_Gitignore_Files() {
@@ -143,6 +147,7 @@ function Provide_Gitignore_Files() {
 		if (Test-Path $target) { throw "ERROR: both files exist, not sure what to do: $source and $target" }
 		Rename-Item $source $target
 		git add -v $source $target
+		if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 		$changes = $True
 	}
 
@@ -152,11 +157,13 @@ function Provide_Gitignore_Files() {
 		Write-Host "Top level file $Git_Ignore_File doesn't exist, will create it based on generic file"
 		Copy-Item "$Git_ignore_example_file" "$Git_Ignore_File"
 		git add -v "$Git_Ignore_File"
+		if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 		$changes = $True
 	}
 	
 	if ($changes) {
 		git commit --author=$Git_Author -m "Taking care of ignore files"
+		if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 	}
 }
 
@@ -164,8 +171,13 @@ function PushGitRepoToRemote() {
 	Write-Host-Formatted "Pushing Git repo to remote ..."
 
 	git remote add origin $Git_Repo
+	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
+
 	git config --global push.default simple
+	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
+
 	git push -u origin --all -v --progress
+	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 
 	# TODO: push in chunks
 	# git rev-list --all --count
