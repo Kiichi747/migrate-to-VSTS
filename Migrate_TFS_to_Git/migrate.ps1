@@ -146,6 +146,7 @@ function Provide_Gitignore_Files() {
 		$target = Join-Path (Split-Path $source) $Git_Ignore_File
 		if (Test-Path $target) { throw "ERROR: both files exist, not sure what to do: $source and $target" }
 		Rename-Item $source $target
+		# TODO: convert back slashes to slashes in paths inside ignore file, otherwise Git won't recognize them
 		git add -v $source $target
 		if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 		$changes = $True
@@ -182,9 +183,21 @@ function RepackGitRepo() {
 function PushGitRepoToRemote() {
 	Write-Host-Formatted "Pushing Git repo to remote ..."
 
-	git remote add origin $Git_Repo
-	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
-
+	$current_origin = git remote get-url origin
+	if ($?) {
+		if ($current_origin -eq $Git_Repo) {
+			Write-Host "Remote is already configured correctly as: $current_origin"
+		} else {
+			Write-Host "Remote is already configured as: $current_origin, fixing it to $Git_Repo"
+			git remote -v set-url origin $Git_Repo
+			if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
+		}
+	} else {
+		Write-Host "Adding remote origin ..."
+		git remote -v add origin $Git_Repo
+		if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
+	}
+	
 	git config --global push.default simple
 	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 
