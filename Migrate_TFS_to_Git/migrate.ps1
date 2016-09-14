@@ -101,11 +101,11 @@ function CleanupGitRepo() {
 
 	$bfg_jar = FindBFG
 
-	java -jar $bfg_jar --no-blob-protection --delete-files "{.git,*.dbmdl,*.1,*.2,*.bak,Thumbs.db,*.suo,*.vssscc,*.vspscc,*.vsscc,*.wixpdb,*.wixobj,*.mvfs_*,*.obj,*.user,*.msi}" .
+	java -jar $bfg_jar --no-blob-protection --delete-files '"{.git,*.dbmdl,*.1,*.2,*.bak,Thumbs.db,*.suo,*.vssscc,*.vspscc,*.vsscc,*.wixpdb,*.wixobj,*.mvfs_*,*.obj,*.user,*.msi}"' .
 	if (! $?) { throw "ERROR: BFG run failed with exit code: $LASTEXITCODE" }
 
 	Write-Host-Formatted "Cleaning Git repo: stage 2 ..."
-	java -jar $bfg_jar --no-blob-protection --delete-folders "{.git,Bin,bin,obj,Debug,debug,backup,Backup,TestResults}" .
+	java -jar $bfg_jar --no-blob-protection --delete-folders '"{.git,Bin,bin,obj,Debug,debug,backup,Backup,TestResults}"' .
 	if (! $?) { throw "ERROR: BFG run failed with exit code: $LASTEXITCODE" }
 
 	Write-Host-Formatted "Cleaning Git repo: stage 3 ..."
