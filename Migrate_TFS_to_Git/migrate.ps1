@@ -133,6 +133,11 @@ function CleanupGitRepo() {
 	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 }
 
+function ConvertSlashes([string] $file) {
+	$c = Get-Content $file
+	$c -replace '\\', '/' | Out-File $file
+}
+
 function Provide_Gitignore_Files() {
 	Write-Host-Formatted "Preparing .gitignore file ..."
 
@@ -146,7 +151,7 @@ function Provide_Gitignore_Files() {
 		$target = Join-Path (Split-Path $source) $Git_Ignore_File
 		if (Test-Path $target) { throw "ERROR: both files exist, not sure what to do: $source and $target" }
 		Rename-Item $source $target
-		# TODO: convert back slashes to slashes in paths inside ignore file, otherwise Git won't recognize them
+		ConvertSlashes $target
 		git add -v $source $target
 		if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 		$changes = $True
