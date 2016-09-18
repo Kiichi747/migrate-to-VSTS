@@ -27,4 +27,4 @@ choco install gittfs -y --allowEmptyChecksums
 @rem TODO: Install Git Credentials Manager
 @rem https://github.com/Microsoft/Git-Credential-Manager-for-Windows/releases/latest
 
-choco install bfg-repo-cleaner -y
+choco install bfg-repo-cleaner -y --allow-empty-checksums
