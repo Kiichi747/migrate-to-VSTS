@@ -28,7 +28,11 @@ Param(
 	
 	# Where to push final Git repo, for example URL of new empty Git repo in VSTS
     [Parameter(Mandatory=$True)]
-    [string] $Git_Repo
+    [string] $Git_Repo,
+	
+	# Clean files bigger than this from the history
+    [Parameter(Mandatory=$False)]
+    [string] $MaxBlobSizeAllowed = 50M
 )
 
 #
@@ -110,7 +114,7 @@ function CleanupGitRepo() {
 	if (! $?) { throw "ERROR: BFG run failed with exit code: $LASTEXITCODE" }
 
 	Write-Host-Formatted "Cleaning Git repo: stage 3 ..."
-	java -jar $bfg_jar --no-blob-protection --strip-blobs-bigger-than 50M .
+	java -jar $bfg_jar --no-blob-protection --strip-blobs-bigger-than $MaxBlobSizeAllowed .
 	if (! $?) { throw "ERROR: BFG run failed with exit code: $LASTEXITCODE" }
 
 	Write-Host-Formatted "Cleaning Git repo: stage 4 ..."
