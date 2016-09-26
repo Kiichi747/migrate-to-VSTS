@@ -23,7 +23,7 @@ function ProcessDir($dir) {
 		if (Test-Path $curdir\.git) {
 			ProcessRepoDir $curdir
 		} else {
-			Write-host "$curdir - doesn't look like a Git repo"
+			# Write-host "$curdir - doesn't look like a Git repo"
 			ProcessDir $curdir
 		}
 	}
