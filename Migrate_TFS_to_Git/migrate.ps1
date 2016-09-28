@@ -32,7 +32,7 @@ Param(
 	
 	# Clean files bigger than this from the history
     [Parameter(Mandatory=$False)]
-    [string] $MaxBlobSizeAllowed = 50M
+    [string] $MaxBlobSizeAllowed = "50M"
 )
 
 #
