@@ -31,7 +31,7 @@ or: https://tfsintegration.codeplex.com/downloads/get/364478#
 `@powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"`
 * Install 7zip: `choco install 7zip`
 * Extract VS2012_TEAMEXP_MSDN_enu.iso using 7zip
-* Install VirtualBox: ...
+* Install VirtualBox: `choco install virtualbox`
 * Fix VirtualBox path in user env var PATH as choco installation sets it incorrectly
 * \[Optional\] Change default machine folder of VirtualBox:
 	- to check current setting, run: `VBoxManage list systemproperties | findstr /C:"Default machine folder"`
@@ -43,11 +43,8 @@ or: https://tfsintegration.codeplex.com/downloads/get/364478#
 
 ## Create VM
 
-* Create VM:
-	- run: `vagrant init mwrock/Windows2012R2` <!-- this box comes with VS pre-installed which simplifies connection to VSTS -->
-> TODO: amend Vagrant file to use 4Gb of memory
-	- run: `vagrant up`
-* Run Oracle VM VirtualBox Manager and start the VM
+* Review Vagrant file that contains all required settings
+* Run VM: `vagrant up`
 * Login to VM using standard username and password: *vagrant*
 
 
