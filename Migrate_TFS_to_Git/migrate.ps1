@@ -19,9 +19,6 @@ Param(
     [Parameter(Mandatory=$False)]
     [string] $Local_Git_Dir,
 	
-    [Parameter(Mandatory=$False)]
-    [bool] $Remove_Local_Git_Dir = $False,
-	
     # This is only for additional commits done after migration, for example preparing .gitignore files
 	[Parameter(Mandatory=$False)]
     [string] $Git_Author,
@@ -32,7 +29,16 @@ Param(
 	
 	# Clean files bigger than this from the history
     [Parameter(Mandatory=$False)]
-    [string] $MaxBlobSizeAllowed = "50M"
+    [string] $MaxBlobSizeAllowed = "50M",
+	
+    [Parameter(Mandatory=$False)]
+    [bool] $Provide_Gitignore_Files = $False,
+	
+    [Parameter(Mandatory=$False)]
+    [bool] $PushGitRepoToRemote = $False,
+	
+    [Parameter(Mandatory=$False)]
+    [bool] $Remove_Local_Git_Dir = $False
 )
 
 #
@@ -260,13 +266,16 @@ FetchAllChangesetsAndConvertToCommits
 CleanupGitRepo
 
 # TODO: Add a .gitattributes file
-Provide_Gitignore_Files
+if ($Provide_Gitignore_Files) {
+	Provide_Gitignore_Files
+}
 
 # TODO: create repo first
 
-# RepackGitRepo
-
-PushGitRepoToRemote
+if ($PushGitRepoToRemote) {
+	RepackGitRepo
+	PushGitRepoToRemote
+}
 
 # TODO: lock TFS, so no more changes can be checked in there
 
