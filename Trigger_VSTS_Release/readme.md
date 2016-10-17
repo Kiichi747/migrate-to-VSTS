@@ -21,5 +21,7 @@ To allow a single Build definition that can build all the branches and PRs but w
 # TODO
 
 Consider further steps:
-* include this script in Experian.Tooling.Build package
-* wrap it into VSTS expension
+
+- include this script in Experian.Tooling.Build package
+
+- wrap it into VSTS expension
