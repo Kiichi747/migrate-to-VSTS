@@ -1,6 +1,9 @@
 Param(
     [Parameter(Mandatory=$True)]
-    [int] $releaseid
+    [int] $ReleaseId,
+	
+    [Parameter(Mandatory=$False)]
+    [string] $BranchThatTriggersRelease = "refs/heads/master"
 )
 
 #
@@ -14,7 +17,7 @@ $project = $Env:SYSTEM_TEAMPROJECT
 $token = $Env:SYSTEM_ACCESSTOKEN
 $builddef = $Env:BUILD_DEFINITIONNAME
 $buildnum = $Env:BUILD_BUILDID
-$branch = $Env:BUILD_SOURCEBRANCHNAME
+$branch = $Env:BUILD_SOURCEBRANCH
 
 
 #
@@ -23,8 +26,8 @@ $branch = $Env:BUILD_SOURCEBRANCHNAME
 
 gci Env: | Out-Host
 
-if ($branch -ne "master") {
-    Write-Host "Branch is not master: $branch, no release triggered"
+if ($branch -ne $BranchThatTriggersRelease) {
+    Write-Host "Branch is: $branch, it's not $BranchThatTriggersRelease, so no release triggered"
 	Exit
 }
 
@@ -53,7 +56,7 @@ $headers = @{Authorization=("Basic {0}"-f $basicAuth)}
 $instanceRef = @{id = $buildID};
 $artif = @{alias = $builddef; instanceReference = @{id = $buildnum}}
 $content = @{
-    definitionId = $releaseid
+    definitionId = $ReleaseId
     description = "Triggered from CI Build"
     artifacts = @($artif)
     }
