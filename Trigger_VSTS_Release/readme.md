@@ -1,7 +1,7 @@
 
 # Purpose
-
-To trigger VSTS Release from Build only for master branch
+Triggers VSTS Release from Build, but only for builds of master branch.
+To allow a single Build definition that can build all the branches and PRs but will trigger Release only for master builds.
 
 # Configure
 
