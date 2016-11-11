@@ -8,7 +8,7 @@ Param(
 	# TODO: consider getting first and last changeset ids from TFS by "tf ..." to fetch changesets in smaller chunks
 	# this will require to install Team Explorer Everywhere: https://www.microsoft.com/en-us/download/details.aspx?id=47727
 
-	# first - to fetch from the very beginning - set to 1 which will one initial empty commit if first changeset is not 1
+	# first - to fetch from the very beginning - set to 1 which will create one initial empty commit if first changeset is not 1
     [Parameter(Mandatory=$False)]
     [int] $TFS_Changeset_First = 1,
 	
