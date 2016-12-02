@@ -76,7 +76,14 @@ function InitGitRepoLinkedToTFS() {
 		return
 	}
 	
-	git tfs quick-clone --changeset=$TFS_Changeset_First --branches=none --resumable "$TFS_Collection_URL" "$TFS_Path" .
+	git tfs quick-clone `
+		--changeset=$TFS_Changeset_First `
+		--branches=none `
+		--resumable `
+		--ignore-regex="\.(dbmdl|1|2|bak|Thumbsdb|suo|vssscc|vspscc|vsscc|wixpdb|wixobj|mvfs_|obj|user|msi)$" `
+		"$TFS_Collection_URL" "$TFS_Path" .
+
+
 	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
 	# not using "clone" command as for some reason it doesn't care about --up-to option
 	# not using "init" command as it doesn't allow to specify start changeset
@@ -108,22 +115,19 @@ function FindBFG() {
 }
 
 function CleanupGitRepo() {
-	Write-Host-Formatted "Cleaning Git repo: stage 1 ..."
-
 	$bfg_jar = FindBFG
 
-	java -jar $bfg_jar --no-blob-protection --delete-files '"{.git,*.dbmdl,*.1,*.2,*.bak,Thumbs.db,*.suo,*.vssscc,*.vspscc,*.vsscc,*.wixpdb,*.wixobj,*.mvfs_*,*.obj,*.user,*.msi}"' .
-	if (! $?) { throw "ERROR: BFG run failed with exit code: $LASTEXITCODE" }
 
-	Write-Host-Formatted "Cleaning Git repo: stage 2 ..."
+	Write-Host-Formatted "Cleaning Git repo: delete-folders ..."
 	java -jar $bfg_jar --no-blob-protection --delete-folders '"{.git,Bin,bin,obj,Debug,debug,backup,Backup,TestResults}"' .
 	if (! $?) { throw "ERROR: BFG run failed with exit code: $LASTEXITCODE" }
-
-	Write-Host-Formatted "Cleaning Git repo: stage 3 ..."
+	# TODO: instead consider using: git clone --gitignore=...
+	
+	Write-Host-Formatted "Cleaning Git repo: strip-blobs-bigger-than ..."
 	java -jar $bfg_jar --no-blob-protection --strip-blobs-bigger-than $MaxBlobSizeAllowed .
 	if (! $?) { throw "ERROR: BFG run failed with exit code: $LASTEXITCODE" }
 
-	Write-Host-Formatted "Cleaning Git repo: stage 4 ..."
+	Write-Host-Formatted "Cleaning Git repo: reset ..."
 	# As some files were cleaned from the HEAD commit, workspace will still contain them and they will be recognized as new changes, reset will remove them
 	git reset HEAD --hard
 	if (! $?) { throw "ERROR: exited with return code: $LASTEXITCODE" }
@@ -131,6 +135,7 @@ function CleanupGitRepo() {
 	
 	# TODO: consider removing git-tfs-id sections from the bottom of the commit messages:
 	# git filter-branch -f --msg-filter 'sed "s/^git-tfs-id:.*$//g"' '--' --all
+	# better way: git tfs clone --no-metadata
 
 	# TODO: Remove the TFS source control bindings from .sln: removing the GlobalSection(TeamFoundationVersionControl) ... EndGlobalSection
 
