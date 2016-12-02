@@ -38,7 +38,10 @@ Param(
     [bool] $PushGitRepoToRemote = $False,
 	
     [Parameter(Mandatory=$False)]
-    [bool] $Remove_Local_Git_Dir = $False
+    [bool] $Remove_Local_Git_Dir = $False,
+	
+    [Parameter(Mandatory=$False)]
+    [bool] $autocrlf = $true
 )
 
 #
@@ -77,6 +80,7 @@ function InitGitRepoLinkedToTFS() {
 	}
 	
 	git tfs quick-clone `
+		--autocrlf=$autocrlf `
 		--changeset=$TFS_Changeset_First `
 		--branches=none `
 		--resumable `
