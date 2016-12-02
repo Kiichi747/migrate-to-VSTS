@@ -1,5 +1,8 @@
 # Continuous Delivery scrtips
 
+## Git_Normalize_Line_Endings
+Normalize line endings in Git repo for all files that were checked-in with incorrect EOL
+
 ## GitUpdater
 Synchronizes Git repos found in folder recursively with their remotes.
 
