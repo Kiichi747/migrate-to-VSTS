@@ -1,5 +1,9 @@
 # Continuous Delivery scrtips
 
+## Account_stats_and_checks
+Scripts to checks health of VSTS account based on custom metrics and alerts.
+Can be run as a scheduled build in VSTS.
+
 ## Git_Normalize_Line_Endings
 Normalize line endings in Git repo for all files that were checked-in with incorrect EOL
 
