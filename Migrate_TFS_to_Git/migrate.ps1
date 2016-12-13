@@ -41,7 +41,7 @@ Param(
     [bool] $Remove_Local_Git_Dir = $False,
 	
     [Parameter(Mandatory=$False)]
-    [bool] $autocrlf = $true
+    [string] $autocrlf = "true" # true, false or auto
 )
 
 #
