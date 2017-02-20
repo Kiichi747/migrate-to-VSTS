@@ -31,7 +31,7 @@ See `install_prereqs.bat` that automates installation of the prerequisites:
     - $Provide_Gitignore_Files - set it to $True only for the final run of the script as it will generate a Git commit that would conflict with new changes from TFS in further runs of the script
     - $PushGitRepoToRemote - if $True will push to remote Git location (in VSTS), set it to $False if you want just a local test
     - $Remove_Local_Git_Dir - set to $True if you want local Git repository deleted after the final migration run, keep it $False to allow incremental re-runs of the script
-4. Run it in PowerShell session, optionally redirecting output to log file
+4. Run it in PowerShell session, optionally redirecting output to log file. Do not use PowerShell ISE as it has issues when running the script.
 5. Review list of cleaned up files from history, that will be printed to output by BFG tool, and will also be recorded in the report files under ..bfg-report subdirectory
 
 ## Migration process
