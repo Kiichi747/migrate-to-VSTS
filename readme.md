@@ -1,4 +1,4 @@
-# Continuous Delivery scrtips
+# Continuous Delivery scripts
 
 ## Account_stats_and_checks
 Scripts to checks health of VSTS account based on custom metrics and alerts.
