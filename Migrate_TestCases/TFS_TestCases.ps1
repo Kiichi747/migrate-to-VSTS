@@ -1,4 +1,6 @@
 
+# see also: http://mypowershell.webnode.sk/news/import-test-cases-with-powershell/
+
 $VerbosePreference = "Stop"
 
 $tfsSource="http://<server>:8080/tfs/DefaultCollection";
