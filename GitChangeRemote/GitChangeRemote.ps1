@@ -2,7 +2,7 @@
 	Script updates local Git repos when remote Git server has been renamed.
 	It searches repositories recursively under a specified directory.
 	For each repository it changes the base URL of the remote origin from old to a new value.
-	If remote origin does not contain an old value it ignores it, so repos cloned from other sources like github.com are safe.
+	If remote origin does not contain an old value it ignores it, so repos cloned from other unknown to script sources are safe.
 	It also ignores repos without remote origin.
 	
 	References:
@@ -25,33 +25,31 @@ Param (
 # Constants
 #
 $ErrorActionPreference = "Stop"
-$RemoteOriginName = 'origin'
 
 #
 # Functions
 #
 
 function ProcessRepo($gitRepoDir) {
+	Write-Host "$gitRepoDir"
+
 	pushd $gitRepoDir
 
-	if (! ((git remote) -match $RemoteOriginName)) {
-		Write-Host "$gitRepoDir : ignoring repo without remote $RemoteOriginName"
-		popd
-		return
+	@(git remote) | %{
+		$currentOrigin = git remote get-url $_
+		
+		if ($currentOrigin.StartsWith($OldRemote))
+		{
+			$newRemote = $currentOrigin -replace $OldRemote, $NewRemote
+			Write-Host "`t changing $_ : $currentOrigin -> $newRemote ..."
+			git remote set-url $_ $newRemote
+		}
+		else
+		{
+			Write-Host "`t unknown remote: $_ : $currentOrigin"
+		}
 	}
 	
-	$currentOrigin = git remote get-url $RemoteOriginName
-	
-	if (! ($currentOrigin.StartsWith($OldRemote))) {
-		Write-Host "$gitRepoDir : ignoring unknown remote: $currentOrigin"
-		popd
-		return
-	}
-	
-	$newRemote = $currentOrigin -replace $OldRemote, $NewRemote
-	Write-Host "$gitRepoDir : changing $currentOrigin to $newRemote ..."
-	git remote set-url $RemoteOriginName $newRemote
-
 	popd
 }
 
