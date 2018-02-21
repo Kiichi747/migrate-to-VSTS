@@ -1,23 +1,40 @@
 <# .SYNOPSIS
 	Script updates local Git repos when remote Git server has been renamed.
-	It searches repositories recursively under a specified directory.
-	For each repository it changes the base URL of the remote origin from old to a new value.
-	If remote origin does not contain an old value it ignores it, so repos cloned from other unknown to script sources are safe.
-	It also ignores repos without remote origin.
+	It searches for repositories recursively in a specified directory.
 	
+	For each repository it changes the base URL of all remotes (e.g. origin) from old to a new URL of Git server.
+	The matches of old URL is case-insenstive.
+	If remote does not contain the old URL it ignores it, so repos cloned from other sources are not touched.
+	It also quietly ignores repos without remotes.
+	
+	Script searches for any git submodules inside a repository, and warns if they also use old Git remote, suggesting to make them relative.
+	But it doesn't change submodules itself as this would generate a new commit and it's not always desired.
+	To manually convert submodules to be relative, follow this:
+		* edit .gitmodules file changing absolute URL to relative, you'll need to figure out if any '../' are required
+		* > git submodule sync
+		* > git submodule update --init --recursive --remote
+		* > git add .gitmodules
+		* > git commit -m "Made submodules relative"
+		* > git push
+		* rerun the script again to make sure there are no more WARNINGs
+
 	References:
 	* https://git-scm.com/docs/git-remote#git-remote-emset-urlem
+	* https://git-scm.com/docs/git-submodule
 #>
 
 Param (
     [Parameter(Mandatory=$False)]
+    [bool] $DryRun = $False,
+	
+    [Parameter(Mandatory=$False)]
     [string] $RootDir = 'D:\sources',
 	
     [Parameter(Mandatory=$False)]
-    [string] $OldRemote = 'https://github.com',
+    [string] $OldRemoteBase = 'https://github.com',
 	
     [Parameter(Mandatory=$False)]
-    [string] $NewRemote = 'https://gitlab.com'
+    [string] $NewRemoteBase = 'https://gitlab.com'
 )
 
 
@@ -25,30 +42,55 @@ Param (
 # Constants
 #
 $ErrorActionPreference = "Stop"
+$modulesFile = '.gitmodules'
 
 #
 # Functions
 #
 
+function UrlHasBase([string] $url, [string] $base) {
+	return $url.StartsWith($base, "CurrentCultureIgnoreCase")
+}
+
+function ProcessSubmodules() {
+	if (Test-Path $modulesFile) {
+		gc $modulesFile | %{
+			if ($_ -match 'url\s*=\s*(.+)\s*$') {
+				$url = $matches[1]
+				if (UrlHasBase $url $OldRemoteBase) {
+					Write-Warning "make submodule relative: $url"
+				}
+			}
+		}
+	}
+}
+
 function ProcessRepo($gitRepoDir) {
-	Write-Host "$gitRepoDir"
+	Write-Host "Repo: $gitRepoDir"
 
 	pushd $gitRepoDir
 
 	@(git remote) | %{
-		$currentOrigin = git remote get-url $_
+		$currentRemote = git remote get-url $_
 		
-		if ($currentOrigin.StartsWith($OldRemote))
+		if (UrlHasBase $currentRemote $OldRemoteBase)
 		{
-			$newRemote = $currentOrigin -replace $OldRemote, $NewRemote
-			Write-Host "`t changing $_ : $currentOrigin -> $newRemote ..."
-			git remote set-url $_ $newRemote
+			$newRemote = $NewRemoteBase + $currentRemote.Remove(0, $OldRemoteBase.Length)
+
+			if ($DryRun) {
+				Write-Host "`t dry-run, found but not changing $_ : $currentRemote -> $newRemote"
+			} else {
+				Write-Host "`t changing $_ : $currentRemote -> $newRemote ..."
+				git remote set-url $_ $newRemote
+			}
 		}
 		else
 		{
-			Write-Host "`t unknown remote: $_ : $currentOrigin"
+			Write-Host "`t unknown remote: $_ : $currentRemote"
 		}
 	}
+	
+	ProcessSubmodules $curDir
 	
 	popd
 }
