@@ -7,9 +7,6 @@ Can be run as a scheduled build in VSTS.
 ## Git_Normalize_Line_Endings
 Normalize line endings in Git repo for all files that were checked-in with incorrect EOL
 
-## GitChangeRemote
-Script to update local Git repos when remote Git server has been renamed.
-
 ## GitUpdater
 Synchronizes Git repos found in folder recursively with their remotes.
 
