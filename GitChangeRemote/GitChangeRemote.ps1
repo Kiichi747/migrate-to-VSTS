@@ -21,6 +21,7 @@
 	References:
 	* https://git-scm.com/docs/git-remote#git-remote-emset-urlem
 	* https://git-scm.com/docs/git-submodule
+	* https://docs.gitlab.com/ce/ci/git_submodules.html
 #>
 
 Param (
@@ -84,9 +85,13 @@ function ProcessRepo($gitRepoDir) {
 				git remote set-url $_ $newRemote
 			}
 		}
+		elseif (UrlHasBase $currentRemote $NewRemoteBase)
+		{
+			Write-Host "`t remote is already updated: $_ : $currentRemote"
+		}
 		else
 		{
-			Write-Host "`t unknown remote: $_ : $currentRemote"
+			Write-Host "`t ignoring unknown remote: $_ : $currentRemote"
 		}
 	}
 	
