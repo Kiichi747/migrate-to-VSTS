@@ -101,12 +101,11 @@ function ProcessRepo($gitRepoDir) {
 }
 
 function ProcessDir([string] $dir) {
-	gci $dir -Dir | %{
-		$curDir = $_.FullName
-		if (Test-Path $curDir\.git) {
-			ProcessRepo $curDir
-		} else {
-			ProcessDir $curDir
+	if (Test-Path $dir\.git) {
+		ProcessRepo $dir
+	} else {
+		gci $dir | ?{ $_.PSIsContainer } | %{
+			ProcessDir $_.FullName
 		}
 	}
 }
